@@ -12,6 +12,8 @@ import std.file, std.path, std.process, std.regex, std.stdio;
  * before you can continue.
  */
 enum _editor = "geany -i";
+//~ enum _remote = "fastmail:lanceb.fastmail.com/files";
+enum _remote = "onedrive:wiki";
 
 // Change markdown parsing options here
 MarkdownFlags	_mdflags = MarkdownFlags.backtickCodeBlocks|MarkdownFlags.disableUnderscoreEmphasis;
@@ -21,20 +23,23 @@ void hello(Cgi cgi) {
 	if (cgi.pathInfo == "/") {
 		if (!exists("index.md")) {
 			std.file.write("index.md", "# Index Page\n\nThis is the starting point for your wiki. Click the link above to edit.");
+			executeShell("rclone copy index.md " ~ _remote);
 		}
 		data = mdToHtml(readText("index.md"), "index");
 	}
 	else if (cgi.pathInfo == "/editpage") {
 		string name = cgi.get["name"];
-		executeShell(_editor ~ " " ~ setExtension(name, "md"));
+		executeShell(_editor ~ " '" ~ setExtension(name, "md'"));
+		executeShell("rclone copy '" ~ name ~ ".md' " ~ _remote);
 		cgi.setResponseLocation("viewpage?name=" ~ name);
 		data = mdToHtml(readText(setExtension(name, "md")), name);
 	}
 	else if (cgi.pathInfo == "/viewpage") {
 		string name = cgi.get["name"];
-		mkdirRecurse(std.path.dirName(name));			
+		executeShell("rclone copy " ~ _remote ~ " '" ~ name ~ ".md' .");			
 		if (!exists(setExtension(name, "md"))) {
-			executeShell(_editor ~ " " ~ setExtension(name, "md"));
+			executeShell(_editor ~ " '" ~ setExtension(name, "md") ~ "'");
+			executeShell("rclone copy '" ~ name ~ ".md' " ~ _remote);
 		}
 		data = mdToHtml(readText(setExtension(name, "md")) ~ "\n\n" ~ `<br><a href="/"><u>&#171; Index</u></a>`, name);
 	}
