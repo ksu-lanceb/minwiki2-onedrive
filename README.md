@@ -17,6 +17,23 @@ Keeping files in sync is an exercise in dealing with tradeoffs. This project "so
 
 It's also worth noting that OneDrive will render markdown files online. That allows you to view your files any place you can access OneDrive.
 
+# Installation
+
+Clone the repo and build using one of these lines depending on the D compiler you have installed. I've never tested with GDC, so it might also work with that too.
+
+```
+dmd *.d -ofwiki.exe
+ldmd2 *.d -ofwiki.exe
+```
+
+Then run `wiki.exe` and open your browser to `localhost:8087/` and start creating wiki pages.
+
+I use the `.exe` extension because that makes it easier to exclude a binary from a Git repo on Linux. If the `.exe` extension makes you uncomfortable on Linux, do something like `wikiexe` and then exclude files ending in exe in your .gitignore.
+
+# Customizing
+
+The main file is wiki.d. Even if you've never used D, that file doesn't do very much - the main program is about 60 lines of code right now - so you can probably understand it if you're an experienced programmer.
+
 # Limitations
 
 Tag search and backlinks are not supported in this version of minwiki2. Doing that would require modifications that I've not yet made. There would need to be an "initialization" command that pulls all files to the local machine on setup plus a way to update every markdown file prior to every tag search or calculation of backlinks. While that's certainly straightforward to implement, the performance on a wiki of any size would mean you'd only use those features when you really need them.
